@@ -2,9 +2,9 @@
 Shared fixtures for all test modules.
 
 The synthetic DataFrame mimics the structure produced by clean_consumption_data():
-  - datetime index
-  - 'consumption_kwh' column (float)
-  - 'hour', 'day_of_week', 'date' columns
+  - 'datetime' column
+  - 'kWh' column (float)
+  - 'hour', 'weekday', 'date' columns
 """
 import pytest
 import pandas as pd
@@ -21,12 +21,12 @@ def sample_df():
     consumption = rng.uniform(0.1, 3.0, size=n)
 
     df = pd.DataFrame({
-        "timestamp": timestamps,
-        "consumption_kwh": consumption,
+        "datetime": timestamps,
+        "kWh": consumption,
     })
-    df["hour"] = df["timestamp"].dt.hour
-    df["day_of_week"] = df["timestamp"].dt.day_name()
-    df["date"] = df["timestamp"].dt.date
+    df["hour"] = df["datetime"].dt.hour
+    df["weekday"] = df["datetime"].dt.day_name()
+    df["date"] = df["datetime"].dt.date
     return df
 
 
@@ -34,6 +34,6 @@ def sample_df():
 def df_with_outliers(sample_df):
     """Same as sample_df but with two clearly extreme values injected."""
     df = sample_df.copy()
-    df.loc[5,  "consumption_kwh"] = 999.0   # extreme high
-    df.loc[10, "consumption_kwh"] = -50.0   # extreme low (invalid)
+    df.loc[5,  "kWh"] = 999.0   # extreme high
+    df.loc[10, "kWh"] = -50.0   # extreme low (invalid)
     return df

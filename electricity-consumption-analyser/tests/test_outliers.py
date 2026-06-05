@@ -21,20 +21,17 @@ def test_iqr_returns_dataframe(sample_df):
 
 def test_3sigma_detects_injected_outliers(df_with_outliers):
     result = detect_outliers_3sigma(df_with_outliers)
-    # The injected value of 999.0 kWh should appear in the outlier output
-    assert 999.0 in result["consumption_kwh"].values
+    assert 999.0 in result["kWh"].values
 
 
 def test_iqr_detects_injected_outliers(df_with_outliers):
     result = detect_outliers_iqr(df_with_outliers)
-    assert 999.0 in result["consumption_kwh"].values
+    assert 999.0 in result["kWh"].values
 
 
 def test_no_outliers_on_clean_data(sample_df):
-    # Clean synthetic data should return few or zero outliers
     result_3s = detect_outliers_3sigma(sample_df)
     result_iqr = detect_outliers_iqr(sample_df)
-    # We can't guarantee zero (IQR is sensitive), but the count should be small
     assert len(result_3s) < len(sample_df) * 0.1, "Too many 3-sigma outliers in clean data"
     assert len(result_iqr) < len(sample_df) * 0.2, "Too many IQR outliers in clean data"
 
