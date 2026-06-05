@@ -5,7 +5,7 @@ and adding time-related columns.
 Data types are optimized for memory efficiency, and the code is designed to handle common issues in IEC files,
 such as blank rows and non-standard kWh formats.
 Input: DataFrame with columns 'date', 'time', and 'kWh'.
-Output: Cleaned DataFrame with additional columns 'datetime', 'date', 'hour', 'weekday', and 'month'.
+Output: Cleaned DataFrame with additional columns 'datetime', 'date', 'hour', 'weekday', 'month', and 'is_weekend'.
 """
 
 import pandas as pd
@@ -39,4 +39,9 @@ def clean_consumption_data(df: pd.DataFrame) -> pd.DataFrame:
     df["hour"] = df["datetime"].dt.hour.astype("int8")
     df["weekday"] = df["datetime"].dt.day_name()
     df["month"] = df["datetime"].dt.month.astype("int8")
+
+    # dayofweek returns 0=Monday … 6=Sunday, so >= 5 catches Sat and Sun.
+    # Stored as int8 (0/1) to keep memory usage minimal.
+    df["is_weekend"] = (df["datetime"].dt.dayofweek >= 5).astype("int8")
+
     return df

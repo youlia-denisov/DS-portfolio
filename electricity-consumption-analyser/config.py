@@ -17,7 +17,7 @@ DISCOUNT_OFFERS_FILE = EXTERNAL_DIR / "electricity_discount_offers.csv"
 WEEKDAY_ORDER = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
 # Clustering
-N_CLUSTERS = 4
+N_CLUSTERS = 3
 RANDOM_STATE = 42
 
 # Location and API for weather data (if used)
@@ -41,8 +41,7 @@ URLS = [
     "https://www.kamaze.co.il/Companies/82471/supergas-electric/electrical-power",
     "https://www.kamaze.co.il/Companies/82501/amisragas--electric/electrical-power",
     "https://www.kamaze.co.il/Companies/82476/pazgas-electric/electrical-power",
-    "https://www.kamaze.co.il/Companies/82617/Ramy-Levi/electrical-power",
-    "https://israelelectricity.com/%d7%94%d7%a9%d7%95%d7%90%d7%aa-%d7%94%d7%a0%d7%97%d7%95%d7%aa-%d7%97%d7%a9%d7%9e%d7%9c/",
+    
 ]
 
 # Local ElectricityTariff for cost calculations. 

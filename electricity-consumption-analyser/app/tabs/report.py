@@ -3,7 +3,6 @@ import re
 import streamlit as st
 
 # st.html() replaces the deprecated st.components.v1.html for rendering inline HTML.
-# st.components.v1.html will be removed after 2026-06-01.
 
 _REPORT_CSS = """
 <style>
@@ -23,7 +22,12 @@ _REPORT_CSS = """
 """
 
 
-def render_report(load_report, ROOT):
+def render_report(load_report, ROOT, simple=False):
+    """Render the analysis report.
+
+    simple=True hides Generated Visuals, Plan Comparison Matrices, Outlier Data,
+    and the raw markdown expander — keeping only the narrative text.
+    """
     st.header("Analysis Report")
     report_text = load_report()
 
@@ -44,11 +48,12 @@ def render_report(load_report, ROOT):
     except ImportError:
         st.markdown(clean_report)
 
-    _render_html_visuals(ROOT)
-    _render_outlier_tables(ROOT)
+    if not simple:
+        _render_html_visuals(ROOT)
+        _render_outlier_tables(ROOT)
 
-    with st.expander("View raw markdown"):
-        st.code(report_text, language="markdown")
+        with st.expander("View raw markdown"):
+            st.code(report_text, language="markdown")
 
 
 def _render_html_visuals(ROOT):

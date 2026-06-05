@@ -305,6 +305,149 @@ def save_clustering_visuals(
     axes[1, 0].set_ylabel("Average kWh")
     axes[1, 0].tick_params(axis="x", rotation=35)
 
-    cluster_sizes = (
-        df["cluster_rank"]
-        .value_counts())
+    cluster_sizes = df["cluster_rank"].value_counts().sort_index()
+
+    bars = axes[1, 1].bar(
+        cluster_sizes.index,
+        cluster_sizes.values,
+        color=[CLUSTER_PALETTE.get(k, "#999999") for k in cluster_sizes.index],
+    )
+    for bar, count in zip(bars, cluster_sizes.values):
+        axes[1, 1].text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 20,
+            str(count),
+            ha="center",
+            va="bottom",
+            fontsize=9,
+        )
+    axes[1, 1].set_title("Records per Cluster")
+    axes[1, 1].set_xlabel("cluster_rank")
+    axes[1, 1].set_ylabel("count")
+
+    from matplotlib.patches import Patch
+    legend_elements = [
+        Patch(facecolor=CLUSTER_PALETTE[r], label=f"Rank {r}")
+        for r in sorted(CLUSTER_PALETTE)
+        if r in cluster_sizes.index
+    ]
+    axes[1, 1].legend(handles=legend_elements, title="cluster_rank", fontsize=8)
+
+    plt.suptitle("Clustering Summary Dashboard", fontsize=14, fontweight="bold", y=1.01)
+    plt.tight_layout()
+
+    dashboard_path = figure_dir / "cluster_dashboard.png"
+    plt.savefig(dashboard_path, dpi=300, bbox_inches="tight")
+    plt.close()
+    generated.append(dashboard_path)
+    print(f"Saved cluster dashboard to: {dashboard_path}")
+
+    # 2. Time-grid heatmap
+    grid_path = plot_time_grid_heatmap(df, figure_dir)
+    if grid_path:
+        generated.append(grid_path)
+
+    return generated
+
+
+def plot_time_grid_heatmap(df: pd.DataFrame, figure_dir: Path) -> "Path | None":
+    """
+    Time-grid heatmap: hour of day (rows) x day of week (columns),
+    coloured by the dominant cluster_rank at each slot.
+
+    Why this matters for analysts
+    ------------------------------
+    The knife plot and silhouette scores tell a data scientist how well
+    the model separated data. This chart tells anyone what the clusters mean
+    in real life: you can read off "high-use mode happens every weekday
+    evening" at a glance, without understanding a single algorithm.
+
+    How it's built
+    --------------
+    For every (hour, weekday) combination we find the most common cluster_rank
+    across all weeks in the dataset -- that's the "dominant" cluster for that
+    slot. The result is a 24x7 grid coloured by cluster rank.
+
+    How to read it
+    --------------
+    - Rows    = hours 0-23 (midnight at top)
+    - Columns = Mon-Sun
+    - Colour  = dominant cluster rank (green = low use, red = high use)
+    - A solid band of red across weekday evenings = concentrated peak
+    - A mixed/patchy column = that day has variable, unpredictable usage
+    - A fully green row (e.g. 3am) = always low regardless of day
+    """
+    required = {"hour", "weekday", "cluster_rank"}
+    if not required.issubset(df.columns):
+        print(f"plot_time_grid_heatmap: missing columns {required - set(df.columns)}")
+        return None
+
+    from config import WEEKDAY_ORDER
+    import matplotlib.colors as mcolors
+
+    # Find the most frequent cluster_rank for each (hour, weekday) slot.
+    dominant = (
+        df.groupby(["hour", "weekday"])["cluster_rank"]
+        .agg(lambda s: s.mode().iloc[0])
+        .reset_index()
+    )
+
+    pivot = (
+        dominant.pivot(index="hour", columns="weekday", values="cluster_rank")
+        .reindex(columns=WEEKDAY_ORDER)
+        .sort_index()
+    )
+
+    # Discrete colour map that matches CLUSTER_PALETTE so colours are
+    # consistent with the dashboard.
+    n_ranks = len(CLUSTER_PALETTE)
+    cmap = mcolors.ListedColormap([CLUSTER_PALETTE[r] for r in sorted(CLUSTER_PALETTE)])
+    bounds = list(range(n_ranks + 1))
+    norm = mcolors.BoundaryNorm(bounds, cmap.N)
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    im = ax.imshow(
+        pivot.values,
+        aspect="auto",
+        cmap=cmap,
+        norm=norm,
+        interpolation="nearest",
+    )
+
+    # Annotate each cell with the rank number for precision.
+    for row_idx in range(pivot.shape[0]):
+        for col_idx in range(pivot.shape[1]):
+            val = pivot.values[row_idx, col_idx]
+            if not pd.isna(val):
+                hex_color = CLUSTER_PALETTE.get(int(val), "#888888").lstrip("#")
+                brightness = sum(
+                    int(hex_color[i:i+2], 16) for i in (0, 2, 4)
+                ) / (3 * 255)
+                text_color = "black" if brightness > 0.5 else "white"
+                ax.text(col_idx, row_idx, str(int(val)),
+                        ha="center", va="center", fontsize=7, color=text_color)
+
+    ax.set_xticks(range(len(WEEKDAY_ORDER)))
+    ax.set_xticklabels(WEEKDAY_ORDER, fontsize=9)
+    ax.set_yticks(range(24))
+    ax.set_yticklabels([f"{h:02d}:00" for h in range(24)], fontsize=7.5)
+    ax.set_xlabel("Day of week", fontsize=10)
+    ax.set_ylabel("Hour of day", fontsize=10)
+    ax.set_title(
+        "Dominant Cluster per Hour x Day of Week\n"
+        "(colour = most common cluster rank across all weeks; 0 = low use, 3 = high use)",
+        fontsize=11,
+        pad=12,
+    )
+
+    cbar = fig.colorbar(im, ax=ax, ticks=[r + 0.5 for r in range(n_ranks)])
+    cbar.ax.set_yticklabels([f"Rank {r}" for r in range(n_ranks)], fontsize=8)
+    cbar.set_label("Cluster rank  (0 = low, 3 = high use)", fontsize=8)
+
+    plt.tight_layout()
+    grid_path = figure_dir / "cluster_time_grid.png"
+    plt.savefig(grid_path, dpi=300, bbox_inches="tight")
+    plt.close()
+    print(f"Saved time-grid heatmap to: {grid_path}")
+    return grid_path
