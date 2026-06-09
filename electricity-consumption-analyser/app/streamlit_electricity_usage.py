@@ -9,7 +9,7 @@ import sys
 st.set_page_config(page_title="Electricity Dashboard", page_icon="⚡", layout="wide")
 st.title("⚡ Electricity Consumption Analysis Dashboard")
 st.markdown("### Smart analysis of your household electricity usage")
-
+st.markdown("**In general, it is recommended to use at least 30 weeks of data for the best statistical analysis.**")
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
@@ -49,7 +49,7 @@ with st.sidebar:
     sidebar_tariff = st.number_input(
         "Electricity tariff (₪/kWh)",
         min_value=0.10,
-        max_value=5.00,
+        max_value=4.00,
         value=float(TARIFF),
         step=0.01,
         format="%.3f",
@@ -86,6 +86,16 @@ with st.sidebar:
     # Always include "All" so universal plans are never hidden
     if "All" not in sidebar_customer_types:
         sidebar_customer_types = ["All"] + sidebar_customer_types
+
+    st.divider()
+    # Mode toggle: Simple hides analyst-focused tabs and uses friendlier labels.
+    view_mode = st.radio(
+        "View mode",
+        ["Simple", "Analyst"],
+        index=0,
+        horizontal=True,
+        help="Simple: overview, discounts, and savings calculator. Analyst: all tabs.",
+    )
 
 # DATA LOADERS
 @st.cache_data
@@ -162,37 +172,65 @@ daily_value_col = next(
     daily_totals.columns[1],  # type: ignore
 )
 
-# TABS
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
-    "Overview", "Hourly Patterns", "Trends & Outliers", "Clustering",
-    "Discounts", "Calculator", "Weather", "Report", "About",
-])
-
 from tabs import (
-    render_overview, render_hourly, render_trends,
+    render_overview, render_simple_overview, render_hourly, render_trends,
     render_clustering, render_discounts, render_calculator, render_weather,
-    render_report, render_about,
+    render_behavior_profile, render_report, render_about, render_outlier_methods,
 )
 
-with tab1:
-    render_overview(daily_totals, date_col, daily_value_col, df_clean, consumption_col,
-                    safe_mean, safe_max)
-with tab2:
-    render_hourly(df_clean, hourly, consumption_col, WEEKDAY_ORDER)
-with tab3:
-    render_trends(df_clean, consumption_col)
-with tab4:
-    render_clustering(load_clustering_data, WEEKDAY_ORDER)
-with tab5:
-    render_discounts(scenarios, PROCESSED_DIR, WEEKDAY_ORDER, sidebar_tariff,
-                     add_offer_eligibility, extract_weekdays, _hours_from_restriction)
-with tab6:
-    render_calculator(df_clean, pd.read_csv(PROCESSED_DIR.parent / "external" / "electricity_discount_offers.csv"),
-                      sidebar_tariff, has_smart_meter=sidebar_has_sm,
-                      customer_types=sidebar_customer_types)
-with tab7:
-    render_weather(load_weather_data)
-with tab8:
-    render_report(load_report, ROOT)
-with tab9:
-    render_about(df_clean, daily_totals, hourly)
+_offers_csv = pd.read_csv(PROCESSED_DIR.parent / "external" / "electricity_discount_offers.csv")
+
+if view_mode == "Simple":
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "Overview", "Best deals", "Calculate my savings", "Report", "About",
+    ])
+
+    with tab1:
+        render_simple_overview(daily_totals, date_col, daily_value_col, df_clean,
+                               consumption_col, safe_mean, safe_max, WEEKDAY_ORDER)
+    with tab2:
+        render_discounts(scenarios, PROCESSED_DIR, WEEKDAY_ORDER, sidebar_tariff,
+                         add_offer_eligibility, extract_weekdays, _hours_from_restriction)
+    with tab3:
+        render_calculator(df_clean, _offers_csv, sidebar_tariff,
+                          has_smart_meter=sidebar_has_sm,
+                          customer_types=sidebar_customer_types)
+    with tab4:
+        render_report(load_report, ROOT, simple=True)
+    with tab5:
+        render_about(df_clean, daily_totals, hourly)
+
+else:
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
+        "Overview", "Hourly Patterns", "Behaviour Profile", "Trends & Outliers",
+        "Outlier Methods", "Clustering", "Weather", "Discounts",
+        "Savings Calculator", "Report", "About",
+    ])
+
+    with tab1:
+        render_overview(daily_totals, date_col, daily_value_col, df_clean, consumption_col,
+                        safe_mean, safe_max)
+    with tab2:
+        render_hourly(df_clean, hourly, consumption_col, WEEKDAY_ORDER)
+    with tab3:
+        render_behavior_profile(df_clean)
+    with tab4:
+        render_trends(df_clean, consumption_col)
+    with tab5:
+        from config import FIGURE_DIR
+        render_outlier_methods(df_clean, consumption_col, FIGURE_DIR)
+    with tab6:
+        render_clustering(load_clustering_data, WEEKDAY_ORDER)
+    with tab7:
+        render_weather(load_weather_data)
+    with tab8:
+        render_discounts(scenarios, PROCESSED_DIR, WEEKDAY_ORDER, sidebar_tariff,
+                         add_offer_eligibility, extract_weekdays, _hours_from_restriction)
+    with tab9:
+        render_calculator(df_clean, _offers_csv, sidebar_tariff,
+                          has_smart_meter=sidebar_has_sm,
+                          customer_types=sidebar_customer_types)
+    with tab10:
+        render_report(load_report, ROOT)
+    with tab11:
+        render_about(df_clean, daily_totals, hourly)
