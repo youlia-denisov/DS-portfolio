@@ -6,8 +6,6 @@ import plotly.express as px
 
 def render_discounts(scenarios, PROCESSED_DIR, WEEKDAY_ORDER, TARIFF,
                      add_offer_eligibility, extract_weekdays, _hours_from_restriction):
-    st.header("Discount Recommendations")
-
     if scenarios is None or scenarios.empty:
         st.warning("No discount scenarios available yet.")
         return
@@ -23,6 +21,13 @@ def render_discounts(scenarios, PROCESSED_DIR, WEEKDAY_ORDER, TARIFF,
     if "source_url" in scenarios.columns:
         display_cols.append("source_url")
 
+    _render_plan_overlap(
+        scenarios, PROCESSED_DIR, WEEKDAY_ORDER, TARIFF,
+        add_offer_eligibility, extract_weekdays, _hours_from_restriction,
+    )
+
+    st.divider()
+    st.header("Available Discounts")
     st.dataframe(
         scenarios[display_cols].round(2),
         column_config={
@@ -31,17 +36,11 @@ def render_discounts(scenarios, PROCESSED_DIR, WEEKDAY_ORDER, TARIFF,
         width="stretch",
     )
 
-    st.divider()
-    _render_plan_overlap(
-        scenarios, PROCESSED_DIR, WEEKDAY_ORDER, TARIFF,
-        add_offer_eligibility, extract_weekdays, _hours_from_restriction,
-    )
-
 
 def _render_plan_overlap(scenarios, PROCESSED_DIR, WEEKDAY_ORDER, TARIFF,
                          add_offer_eligibility, extract_weekdays, _hours_from_restriction):
     """Side-by-side heatmaps: your consumption vs. a plan's discount window."""
-    st.subheader("Consumption vs. Plan Tariff Window")
+    st.subheader("Your Consumption vs. Plan Tariff Window")
     st.markdown(
         "Select a plan to see your consumption profile next to the discount window. "
         "Green = discounted rate, red = full rate."

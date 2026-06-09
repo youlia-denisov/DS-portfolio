@@ -182,19 +182,20 @@ _offers_csv = pd.read_csv(PROCESSED_DIR.parent / "external" / "electricity_disco
 
 if view_mode == "Simple":
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "Overview", "Best deals", "Calculate my savings", "Report", "About",
+        "Overview", "Calculate my savings", "Best deals",  "Report", "About",
     ])
 
     with tab1:
         render_simple_overview(daily_totals, date_col, daily_value_col, df_clean,
                                consumption_col, safe_mean, safe_max, WEEKDAY_ORDER)
     with tab2:
-        render_discounts(scenarios, PROCESSED_DIR, WEEKDAY_ORDER, sidebar_tariff,
-                         add_offer_eligibility, extract_weekdays, _hours_from_restriction)
-    with tab3:
         render_calculator(df_clean, _offers_csv, sidebar_tariff,
                           has_smart_meter=sidebar_has_sm,
                           customer_types=sidebar_customer_types)
+        
+    with tab3:
+        render_discounts(scenarios, PROCESSED_DIR, WEEKDAY_ORDER, sidebar_tariff,
+                         add_offer_eligibility, extract_weekdays, _hours_from_restriction)
     with tab4:
         render_report(load_report, ROOT, simple=True)
     with tab5:
@@ -203,7 +204,7 @@ if view_mode == "Simple":
 else:
     tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
         "Overview", "Hourly Patterns", "Behaviour Profile", "Trends & Outliers",
-        "Outlier Methods", "Clustering", "Weather", "Discounts",
+        "Outlier Methods", "Clustering", "Weather", "Available Discounts",
         "Savings Calculator", "Report", "About",
     ])
 

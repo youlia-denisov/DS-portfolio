@@ -333,7 +333,7 @@ def render_discounts(scenarios, PROCESSED_DIR, WEEKDAY_ORDER, TARIFF,
     st.dataframe(scenarios[display_cols].round(2), width="stretch")
 
     st.divider()
-    st.subheader("Consumption vs. Plan Tariff Window")
+    st.header("Consumption vs. Plan Tariff Window")
     st.markdown(
         "Select a plan to see your consumption profile next to the discount window. "
         "Green = discounted rate, red = full rate."
