@@ -11,7 +11,7 @@ Hi! I'm Youlia, a biologist with a PhD who's made the exciting jump into data sc
 **Skills:**
 Python (pandas, scikit-learn, NumPy) · SQL · Power BI · Plotly · Streamlit · EDA · Statistical Analysis · Machine Learning · Automation · Git
 
-- **GitHub**: [YouliaXX](https://github.com/YouliaXX/DS-portfolio)
+- **GitHub**: [youlia-denisov](https://github.com/YouliaXX/DS-portfolio)
 - **LinkedIn**: [youliadenisov-phd](https://linkedin.com/in/youliadenisov-phd)
 
 ---
