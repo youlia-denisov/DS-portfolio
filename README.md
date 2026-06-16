@@ -1,50 +1,82 @@
-# Data Science Portfolio
+# Youlia Denisov · Data Science Portfolio
 
-**Youlia Denisov · Biologist Turned Data Explorer**
+**Biologist → Data Explorer** · PhD in Biology · Turning messy real-world data into clear, useful things
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-youliadenisov--phd-0A66C2?logo=linkedin&logoColor=white)](https://linkedin.com/in/youliadenisov-phd)
+[![GitHub](https://img.shields.io/badge/GitHub-youlia--denisov-181717?logo=github&logoColor=white)](https://github.com/youlia-denisov/DS-portfolio)
 
 ---
 
-## About Me
+## Skills
 
-Hi! I'm Youlia, a biologist with a PhD who's made the exciting jump into data science. After years spent exploring the beautiful complexity of living systems, I discovered I get the exact same spark of excitement from diving into real-world data and turning it into clear, actionable insights. What truly lights me up is using data to solve practical, everyday problems that actually make life better for people.
-
-**Skills:**
-Python (pandas, scikit-learn, NumPy) · SQL · Power BI · Plotly · Streamlit · EDA · Statistical Analysis · Machine Learning · Automation · Git
-
-- **GitHub**: [youlia-denisov](https://github.com/YouliaXX/DS-portfolio)
-- **LinkedIn**: [youliadenisov-phd](https://linkedin.com/in/youliadenisov-phd)
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
+![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-013243?logo=numpy&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikit-learn&logoColor=white)
+![Plotly](https://img.shields.io/badge/Plotly-3F4F75?logo=plotly&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)
+![SQL](https://img.shields.io/badge/SQL-4479A1?logo=postgresql&logoColor=white)
+![Power BI](https://img.shields.io/badge/Power%20BI-F2C811?logo=powerbi&logoColor=black)
+![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white)
 
 ---
 
 ## Projects
 
-### ⚡ [Electricity Consumption Analyser](./electricity-consumption-analyser)
+### 🌿 NGT Tracker — Gene Editing Dashboard
+![Status](https://img.shields.io/badge/status-live-brightgreen)
 
-This is my first public personal project — and I'm pretty proud of it. I built a complete Python pipeline that takes raw electricity meter data from the Israel Electric Corporation (those messy CSVs with Hebrew headers and weird formatting) and turns it into clear, useful insights. It identifies consumption patterns, spots unusual spikes, correlates usage with weather, and tells you which discount plan would actually save you money based on your real usage.
+**[▶ Open Dashboard](https://youlia-denisov.github.io/DS-portfolio/gene-editing-tracker/docs/)** · [Source](./gene-editing-tracker)
 
-What I'm especially happy with:
-- Smart handling of IEC's quirky export format
-- KMeans clustering with proper cyclical encoding for time features
-- Robust outlier detection — both statistical and visual
-- Optional weather integration via Open-Meteo API
-- Interactive Plotly visualizations and a clean Streamlit dashboard
-- Real savings analysis for a consumer navigating Israel's liberalized electricity market
+206 gene-edited agricultural products. 60 organisms. 17 countries. One interactive dashboard.
 
-**Tech stack:** Python · pandas · scikit-learn · Plotly · Streamlit · matplotlib · seaborn
+This started as a Power BI report and became a fully browser-based web app — no license, no server, shareable as a URL. It maps the global NGT (CRISPR and related tools) pipeline from lab discovery to market, with real-time cross-filtering by organism, country, and trait.
 
----
+![Dashboard overview](./gene-editing-tracker/screenshots/dashboard_overview.png)
 
-### 🌐 [WattWise — Multi-User Streamlit App](./streamlit-multiuser-app)
+What I built on top of the original Power BI:
+- World map showing geographic distribution (not in the original)
+- Animated bar chart race — NGT product counts by organism, 2016–2024
+- Organism drill-down with stage breakdown and per-product image cards
 
-A full refactor of the electricity analyser into a proper multi-user web app. The original project was single-user by design — this version gives each visitor their own isolated session, so multiple people can upload and analyze their data simultaneously without anything leaking between them.
-
-Beyond the multi-user architecture, I added several new analytical tabs that weren't in the original:
-- **Behavioural Fingerprint** — distils your entire consumption history into a handful of interpretable metrics (WFH ratio, peak hour, night owl score, regularity index)
-- **Outlier Detection** — compares simple-to-understand methods: 3-sigma, IQR, with an auto-selected recommendation based on your data's distribution
-- **Usage Clustering** — groups hourly readings into ranked profiles from quietest to heaviest use
-
-**Tech stack:** Python · Streamlit · scikit-learn · Plotly · pandas
+**Stack:** Plotly.js · wordcloud2.js · Vanilla JS · GitHub Pages
 
 ---
 
-*More projects coming soon.*
+### ⚡ Electricity Consumption Analyser
+![Status](https://img.shields.io/badge/status-complete-blue)
+
+[Source](./electricity-consumption-analyser)
+
+My first public project. Takes raw meter exports from the Israel Electric Corporation — messy CSVs with Hebrew headers — and turns them into actual insights: consumption patterns, outlier spikes, weather correlations, and a plain-language answer to "which discount plan would save me money?"
+
+What I'm most satisfied with technically:
+- KMeans clustering with cyclical time encoding (so Monday and Sunday are actually neighbours)
+- Dual-method outlier detection with a recommendation based on your data's distribution
+- Optional weather layer via Open-Meteo API
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+**Stack:** Python · pandas · scikit-learn · Plotly · Streamlit · matplotlib
+
+---
+
+### 🌐 WattWise — Multi-User App
+![Status](https://img.shields.io/badge/status-complete-blue)
+
+[Source](./streamlit-multiuser-app)
+
+A full refactor of the analyser above into a proper multi-user web app — each visitor gets an isolated session, so multiple people can upload and analyse their data simultaneously without leaking state between them.
+
+New analytical tabs added in this version:
+
+| Tab | What it does |
+|-----|-------------|
+| Behavioural Fingerprint | Distils your history into readable metrics: WFH ratio, peak hour, night owl score, regularity index |
+| Outlier Detection | Side-by-side 3σ vs IQR comparison with an auto-selected recommendation |
+| Usage Clustering | Groups hourly readings into ranked profiles, quietest to heaviest |
+
+**Stack:** Python · Streamlit · scikit-learn · Plotly · pandas
